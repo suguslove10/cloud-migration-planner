@@ -1,0 +1,45 @@
+{
+  "servers": [
+    {
+      "serverId": "srv-001",
+      "serverName": "ProductionWebServer",
+      "cpuCores": 4,
+      "cpuUtilization": 75,
+      "totalMemory": 16384,
+      "usedMemory": 12288,
+      "totalStorage": 500000,
+      "usedStorage": 350000,
+      "applications": [
+        "nginx",
+        "mysql",
+        "php"
+      ],
+      "dependencies": [
+        "srv-002"
+      ],
+      "networkUtilization": {
+        "bandwidth": 100,
+        "averageUsage": 65
+      }
+    },
+    {
+      "serverId": "srv-002",
+      "serverName": "DatabaseServer",
+      "cpuCores": 8,
+      "cpuUtilization": 85,
+      "totalMemory": 32768,
+      "usedMemory": 28672,
+      "totalStorage": 1000000,
+      "usedStorage": 750000,
+      "applications": [
+        "mysql",
+        "redis"
+      ],
+      "dependencies": [],
+      "networkUtilization": {
+        "bandwidth": 100,
+        "averageUsage": 75
+      }
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "servers": [
+    {
+      "serverId": "srv-001",
+      "serverName": "Production Web Server",
+      "cpuCores": 4,
+      "cpuUtilization": 85,
+      "totalMemory": 16384,
+      "usedMemory": 14336,
+      "totalStorage": 500000,
+      "usedStorage": 425000,
+      "applications": [
+        "nginx",
+        "php-fpm",
+        "mysql",
+        "redis",
+        "elasticsearch"
+      ],
+      "dependencies": [
+        "srv-002",
+        "srv-003"
+      ],
+      "networkUtilization": {
+        "bandwidth": 1000,
+        "averageUsage": 75
+      }
+    },
+    {
+      "serverId": "srv-002",
+      "serverName": "Primary Database Server",
+      "cpuCores": 8,
+      "cpuUtilization": 90,
+      "totalMemory": 65536,
+      "usedMemory": 58982,
+      "totalStorage": 2000000,
+      "usedStorage": 1750000,
+      "applications": [
+        "mysql",
+        "postgresql",
+        "mongodb",
+        "redis"
+      ],
+      "dependencies": [
+        "srv-004"
+      ],
+      "networkUtilization": {
+        "bandwidth": 10000,
+        "averageUsage": 85
+      }
+    },
+    {
+      "serverId": "srv-003",
+      "serverName": "Application Server",
+      "cpuCores": 6,
+      "cpuUtilization": 70,
+      "totalMemory": 32768,
+      "usedMemory": 24576,
+      "totalStorage": 1000000,
+      "usedStorage": 750000,
+      "applications": [
+        "tomcat",
+        "jenkins",
+        "docker",
+        "nodejs"
+      ],
+      "dependencies": [
+        "srv-002"
+      ],
+      "networkUtilization": {
+        "bandwidth": 5000,
+        "averageUsage": 65
+      }
+    },
+    {
+      "serverId": "srv-004",
+      "serverName": "Cache Server",
+      "cpuCores": 4,
+      "cpuUtilization": 55,
+      "totalMemory": 16384,
+      "usedMemory": 12288,
+      "totalStorage": 500000,
+      "usedStorage": 250000,
+      "applications": [
+        "redis",
+        "memcached",
+        "varnish"
+      ],
+      "dependencies": [],
+      "networkUtilization": {
+        "bandwidth": 2000,
+        "averageUsage": 45
+      }
+    },
+    {
+      "serverId": "srv-005",
+      "serverName": "Analytics Server",
+      "cpuCores": 8,
+      "cpuUtilization": 95,
+      "totalMemory": 131072,
+      "usedMemory": 124518,
+      "totalStorage": 5000000,
+      "usedStorage": 4250000,
+      "applications": [
+        "hadoop",
+        "spark",
+        "elasticsearch",
+        "kibana",
+        "grafana"
+      ],
+      "dependencies": [
+        "srv-002",
+        "srv-006"
+      ],
+      "networkUtilization": {
+        "bandwidth": 20000,
+        "averageUsage": 90
+      }
+    },
+    {
+      "serverId": "srv-006",
+      "serverName": "Data Warehouse",
+      "cpuCores": 16,
+      "cpuUtilization": 88,
+      "totalMemory": 262144,
+      "usedMemory": 235929,
+      "totalStorage": 10000000,
+      "usedStorage": 8500000,
+      "applications": [
+        "postgresql",
+        "snowflake",
+        "airflow",
+        "tableau-server"
+      ],
+      "dependencies": [
+        "srv-002"
+      ],
+      "networkUtilization": {
+        "bandwidth": 15000,
+        "averageUsage": 82
+      }
+    }
+  ]
+}
