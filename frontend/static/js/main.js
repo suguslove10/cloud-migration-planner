@@ -99,49 +99,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const baselineCost = getBaselineMigrationCost(server.migrationStrategy.strategy);
         const complexityMultiplier = getComplexityMultiplier(server.complexity.level);
         
-        // Calculate monthly cloud costs
-        const computeCost = calculateComputeCost(server.serverData.metrics);
-        const storageCost = calculateStorageCost(server.serverData.metrics);
-        const networkCost = calculateNetworkCost(server.serverData.networkUtilization);
-        
-        const projectedMonthlyCost = computeCost + storageCost + networkCost;
-        const currentMonthlyCost = projectedMonthlyCost * 1.4; // Assuming 40% higher on-premises
+        const projectedMonthlyCost = calculateMonthlyCloudCost(server);
+        const currentMonthlyCost = projectedMonthlyCost * 1.4; // Assuming 40% savings
         const migrationCost = baselineCost * complexityMultiplier;
-        
+
         return {
             projectedMonthlyCost,
             currentMonthlyCost,
             migrationCost,
-            savings: currentMonthlyCost - projectedMonthlyCost
+            baselineCost,
+            complexityMultiplier
         };
     }
 
     // Cost calculation helpers
-    function calculateComputeCost(metrics) {
-        // Cost per core per month in INR
-        const costPerCore = 3000; // ₹3,000 per core
-        const utilizationFactor = metrics.cpu.utilization / 100;
-        return metrics.cpu.cores * costPerCore * utilizationFactor;
-    }
-
-    function calculateStorageCost(metrics) {
-        // Storage cost per GB per month in INR
-        const costPerGB = 100; // ₹100 per GB
-        const storageGB = metrics.storage.total / (1024 * 1024); // Convert KB to GB
-        return storageGB * costPerGB;
-    }
-
-    function calculateNetworkCost(networkUtilization) {
-        // Network cost per GB of bandwidth per month in INR
-        const costPerGBBandwidth = 50; // ₹50 per GB bandwidth
-        return (networkUtilization.bandwidth * networkUtilization.averageUsage / 100) * costPerGBBandwidth;
-    }
-
     function getBaselineMigrationCost(strategy) {
         const costs = {
             'Rehost': 500000,     // ₹5 lakhs
-            'Replatform': 1000000, // ₹10 lakhs
-            'Refactor': 2000000    // ₹20 lakhs
+            'Replatform': 1500000, // ₹15 lakhs
+            'Refactor': 3000000    // ₹30 lakhs
         };
         return costs[strategy] || costs.Rehost;
     }
@@ -153,6 +129,23 @@ document.addEventListener('DOMContentLoaded', function() {
             'Low': 1.0
         };
         return multipliers[level] || 1.0;
+    }
+
+    function calculateMonthlyCloudCost(server) {
+        const metrics = server.serverData.metrics;
+        
+        // Compute costs (₹1000 per core at 100% utilization)
+        const computeCost = metrics.cpu.cores * 1000 * (metrics.cpu.utilization / 100);
+        
+        // Storage costs (₹10 per GB)
+        const storageGB = metrics.storage.total / (1024 * 1024);
+        const storageCost = storageGB * 10;
+        
+        // Memory costs (₹20 per GB)
+        const memoryGB = metrics.memory.total / (1024 * 1024);
+        const memoryCost = memoryGB * 20;
+        
+        return computeCost + storageCost + memoryCost;
     }
 
     // Display functions
@@ -259,23 +252,19 @@ document.addEventListener('DOMContentLoaded', function() {
         createCostChart(servers, costData);
         
         // Update cost summary
-        const annualSavings = costData.monthlySavings * 12;
-        const threeYearSavings = (costData.monthlySavings * 36) - costData.totalMigrationCost;
-        const costReduction = ((costData.currentCosts - costData.monthlyCloudCost) / costData.currentCosts) * 100;
-
         document.getElementById('costSummary').innerHTML = `
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-blue-50 p-4 rounded-lg">
                     <h4 class="text-sm font-medium text-blue-800">Annual Savings</h4>
-                    <p class="text-xl font-bold text-blue-600">${formatINR(annualSavings)}</p>
+                    <p class="text-xl font-bold text-blue-600">${formatINR(costData.monthlySavings * 12)}</p>
                 </div>
                 <div class="bg-green-50 p-4 rounded-lg">
                     <h4 class="text-sm font-medium text-green-800">3-Year Savings</h4>
-                    <p class="text-xl font-bold text-green-600">${formatINR(threeYearSavings)}</p>
+                    <p class="text-xl font-bold text-green-600">${formatINR((costData.monthlySavings * 36) - costData.totalMigrationCost)}</p>
                 </div>
                 <div class="bg-purple-50 p-4 rounded-lg">
                     <h4 class="text-sm font-medium text-purple-800">Cost Reduction</h4>
-                    <p class="text-xl font-bold text-purple-600">${formatNumber(costReduction)}%</p>
+                    <p class="text-xl font-bold text-purple-600">${formatNumber((costData.monthlySavings / costData.currentCosts) * 100)}%</p>
                 </div>
                 <div class="bg-yellow-50 p-4 rounded-lg">
                     <h4 class="text-sm font-medium text-yellow-800">Break-even Point</h4>
@@ -353,7 +342,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }).format(num);
     }
 
-    // Continue formatBytes function
     function formatBytes(bytes) {
         const units = ['B', 'KB', 'MB', 'GB', 'TB'];
         let unitIndex = 0;
